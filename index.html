@@ -24,12 +24,9 @@
             100% { background-position: 0% 50%; }
         }
 
-        @keyframes flipAnimation {
+        @keyframes continuousFlip {
             0% {
                 transform: perspective(400px) rotateY(0deg);
-            }
-            50% {
-                transform: perspective(400px) rotateY(180deg) scaleX(1.5);
             }
             100% {
                 transform: perspective(400px) rotateY(360deg);
@@ -40,7 +37,7 @@
             font-size: 4rem;
             margin-bottom: 10px;
             font-weight: bold;
-            animation: flipAnimation 3s infinite;
+            animation: continuousFlip 3s linear infinite;
         }
 
         h2 {
