@@ -29,13 +29,17 @@
                 transform: perspective(400px) rotateY(0deg);
                 animation-timing-function: ease-in;
             }
-            50% {
-                transform: perspective(400px) rotateY(180deg);
-                animation-timing-function: ease-out;
+            40% {
+                transform: perspective(400px) rotateY(150deg);
+                animation-timing-function: ease-in-out;
+            }
+            60% {
+                transform: perspective(400px) rotateY(210deg);
+                animation-timing-function: ease-in-out;
             }
             100% {
                 transform: perspective(400px) rotateY(360deg);
-                animation-timing-function: ease-in;
+                animation-timing-function: ease-out;
             }
         }
 
@@ -43,7 +47,7 @@
             font-size: 4rem;
             margin-bottom: 10px;
             font-weight: bold;
-            animation: velocityFlip 4s infinite;
+            animation: velocityFlip 3s infinite;
         }
 
         h2 {
