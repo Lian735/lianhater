@@ -25,16 +25,10 @@
             100% { background-position: 0% 50%; }
         }
 
-        @keyframes velocityFlip {
-            0% { transform: perspective(400px) rotateY(0deg); }
-            100% { transform: perspective(400px) rotateY(360deg); }
-        }
-
         h1 {
             font-size: 4rem;
             margin-bottom: 10px;
             font-weight: bold;
-            animation: velocityFlip 3s cubic-bezier(0.4, 0, 0.2, 1) infinite;
             display: inline-block;
         }
 
@@ -56,14 +50,11 @@
             display: inline-block;
         }
 
-        .letter {
+        canvas {
             position: absolute;
-            display: inline-block;
-        }
-
-        @keyframes fall {
-            0% { transform: translateY(0); opacity: 1; }
-            100% { transform: translateY(500px); opacity: 0.8; }
+            top: 0;
+            left: 0;
+            z-index: -1;
         }
     </style>
 </head>
@@ -71,11 +62,36 @@
 
     <div id="content">
         <h1 id="mainText">I hate Lian 😾😾💯💯</h1>
-        <div id="countdown"></div>
         <h2 class="splash">Lian revenge 😈</h2>
+        <div id="countdown"></div>
     </div>
 
+    <canvas id="canvas"></canvas>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/matter-js/0.17.1/matter.min.js"></script>
     <script>
+        // Matter.js Setup
+        const { Engine, Render, Runner, Bodies, Composite, Events, Body } = Matter;
+
+        const engine = Engine.create();
+        const world = engine.world;
+
+        const canvas = document.getElementById('canvas');
+        const render = Render.create({
+            canvas: canvas,
+            engine: engine,
+            options: {
+                width: window.innerWidth,
+                height: window.innerHeight,
+                wireframes: false,
+                background: 'transparent'
+            }
+        });
+
+        Render.run(render);
+        const runner = Runner.create();
+        Runner.run(runner, engine);
+
         // Countdown Logic
         function updateCountdown() {
             const now = new Date();
@@ -102,7 +118,52 @@
 
         updateCountdown();
 
-        // Explosion effect on click
+        // Ground for letters to fall on
+        const ground = Bodies.rectangle(window.innerWidth / 2, window.innerHeight + 20, window.innerWidth, 40, { isStatic: true });
+        Composite.add(world, ground);
+
+        // Function to create letters as Matter.js bodies
+        function explodeText(element) {
+            const text = element.textContent;
+            element.textContent = ''; // Clear the original text from DOM
+
+            for (let i = 0; i < text.length; i++) {
+                const letter = text[i];
+                const letterDiv = document.createElement('div');
+                letterDiv.textContent = letter;
+                letterDiv.style.fontSize = '40px';
+                letterDiv.style.color = 'white';
+                document.body.appendChild(letterDiv);
+
+                const letterBody = Bodies.rectangle(
+                    element.getBoundingClientRect().left + i * 40,
+                    element.getBoundingClientRect().top,
+                    40,
+                    40,
+                    {
+                        restitution: 0.6,
+                        render: {
+                            text: {
+                                content: letter,
+                                fontSize: '40px',
+                                fillStyle: 'white'
+                            }
+                        }
+                    }
+                );
+
+                // Apply a random force to simulate an explosion
+                const forceMagnitude = 0.05 + Math.random() * 0.05;
+                Body.applyForce(letterBody, letterBody.position, {
+                    x: (Math.random() - 0.5) * forceMagnitude,
+                    y: -Math.random() * forceMagnitude
+                });
+
+                Composite.add(world, letterBody);
+            }
+        }
+
+        // Click listener to trigger explosion
         document.body.addEventListener('click', function() {
             let elements = document.querySelectorAll('h1, h2, #countdown, .splash');
             elements.forEach(function(element) {
@@ -110,33 +171,11 @@
             });
         });
 
-        function explodeText(element) {
-            const text = element.textContent;
-            element.textContent = '';
-
-            for (let i = 0; i < text.length; i++) {
-                const letter = document.createElement('span');
-                letter.textContent = text[i];
-                letter.className = 'letter';
-                document.body.appendChild(letter);
-
-                const x = (Math.random() - 0.5) * window.innerWidth;
-                const y = (Math.random() - 0.5) * window.innerHeight;
-                const delay = Math.random() * 0.2;
-
-                letter.style.position = 'absolute';
-                letter.style.left = `${element.getBoundingClientRect().left + i * 20}px`;
-                letter.style.top = `${element.getBoundingClientRect().top}px`;
-
-                letter.style.transform = `translate(${x}px, ${y}px) rotate(${Math.random() * 720}deg)`;
-                letter.style.transition = `transform 1s ease ${delay}s, opacity 2s ease`;
-
-                setTimeout(function() {
-                    letter.style.transform = `translate(${x}px, ${window.innerHeight}px) rotate(${Math.random() * 720}deg)`;
-                    letter.style.opacity = 0;
-                }, 100);
-            }
-        }
+        // Resize canvas on window resize
+        window.addEventListener('resize', () => {
+            render.canvas.width = window.innerWidth;
+            render.canvas.height = window.innerHeight;
+        });
     </script>
 
 </body>
