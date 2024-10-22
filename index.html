@@ -16,6 +16,7 @@
             font-family: Arial, sans-serif;
             text-align: center;
             color: white;
+            overflow: hidden;
         }
 
         @keyframes gradientAnimation {
@@ -25,12 +26,8 @@
         }
 
         @keyframes velocityFlip {
-            0% {
-                transform: perspective(400px) rotateY(0deg);
-            }
-            100% {
-                transform: perspective(400px) rotateY(360deg);
-            }
+            0% { transform: perspective(400px) rotateY(0deg); }
+            100% { transform: perspective(400px) rotateY(360deg); }
         }
 
         h1 {
@@ -38,33 +35,48 @@
             margin-bottom: 10px;
             font-weight: bold;
             animation: velocityFlip 3s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+            display: inline-block;
         }
 
         h2 {
             font-size: 2rem;
             margin-bottom: 20px;
+            display: inline-block;
         }
 
         #countdown {
             font-size: 1.5rem;
             margin-bottom: 20px;
+            display: inline-block;
         }
 
         .splash {
             font-size: 1rem;
             margin-top: 20px;
+            display: inline-block;
+        }
+
+        .letter {
+            position: absolute;
+            display: inline-block;
+        }
+
+        @keyframes fall {
+            0% { transform: translateY(0); opacity: 1; }
+            100% { transform: translateY(500px); opacity: 0.8; }
         }
     </style>
 </head>
 <body>
 
-    <div>
-        <h1>I hate Lian 😾😾💯💯</h1>
+    <div id="content">
+        <h1 id="mainText">I hate Lian 😾😾💯💯</h1>
         <div id="countdown"></div>
         <h2 class="splash">Lian revenge 😈</h2>
     </div>
 
     <script>
+        // Countdown Logic
         function updateCountdown() {
             const now = new Date();
             let year = now.getFullYear();
@@ -89,6 +101,42 @@
         }
 
         updateCountdown();
+
+        // Explosion effect on click
+        document.body.addEventListener('click', function() {
+            let elements = document.querySelectorAll('h1, h2, #countdown, .splash');
+            elements.forEach(function(element) {
+                explodeText(element);
+            });
+        });
+
+        function explodeText(element) {
+            const text = element.textContent;
+            element.textContent = '';
+
+            for (let i = 0; i < text.length; i++) {
+                const letter = document.createElement('span');
+                letter.textContent = text[i];
+                letter.className = 'letter';
+                document.body.appendChild(letter);
+
+                const x = (Math.random() - 0.5) * window.innerWidth;
+                const y = (Math.random() - 0.5) * window.innerHeight;
+                const delay = Math.random() * 0.2;
+
+                letter.style.position = 'absolute';
+                letter.style.left = `${element.getBoundingClientRect().left + i * 20}px`;
+                letter.style.top = `${element.getBoundingClientRect().top}px`;
+
+                letter.style.transform = `translate(${x}px, ${y}px) rotate(${Math.random() * 720}deg)`;
+                letter.style.transition = `transform 1s ease ${delay}s, opacity 2s ease`;
+
+                setTimeout(function() {
+                    letter.style.transform = `translate(${x}px, ${window.innerHeight}px) rotate(${Math.random() * 720}deg)`;
+                    letter.style.opacity = 0;
+                }, 100);
+            }
+        }
     </script>
 
 </body>
